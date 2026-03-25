@@ -1,4 +1,7 @@
-#[derive(Debug)]
+use regex::Regex;
+use std::{f32::consts::E, os::linux::raw::stat, sync::OnceLock};
+
+#[derive(Debug, Hash, Eq, PartialEq, Clone, Copy)]
 pub enum LogLevel {
     INFO,
     DEBUG,
@@ -45,9 +48,12 @@ pub fn parse_log_line(line: &str) -> Option<LogEntry> {
 
 pub fn sanitize_log_entry(log_entry: LogEntry) -> LogEntry {
     // Simple sanitization: email addresses and potentiall credit card numbers with ***
-    let email_regex =
-        regex::Regex::new(r"([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})").unwrap();
-    let cc_regex = regex::Regex::new(r"\b(?:\d[ -]*?){13,16}\b").unwrap();
+    static EMAIL_REGEX: OnceLock<Regex> = OnceLock::new();
+    static CC_REGEX: OnceLock<Regex> = OnceLock::new();
+
+    let email_regex = EMAIL_REGEX
+        .get_or_init(|| Regex::new(r"([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})").unwrap());
+    let cc_regex = CC_REGEX.get_or_init(|| Regex::new(r"\b(?:\d[ -]*?){13,16}\b").unwrap());
 
     let sanitized_message = email_regex
         .replace_all(&log_entry.message, "***")

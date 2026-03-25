@@ -1,1 +1,7 @@
 /target
+/data
+.env
+*.log
+.venv
+__pycache__
+*.txt

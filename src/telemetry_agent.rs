@@ -60,10 +60,17 @@ pub fn sanitize_log_entry(log_entry: LogEntry) -> LogEntry {
         .to_string();
     let sanitized_message = cc_regex.replace_all(&sanitized_message, "***").to_string();
 
+    // only show first 10 characters of IP for privacy
+    let sanitized_ip = if log_entry.ip.len() > 10 {
+        format!("{}***", &log_entry.ip[..10])
+    } else {
+        log_entry.ip.clone()
+    };
+
     LogEntry {
         timestamp: log_entry.timestamp,
         level: log_entry.level,
-        ip: log_entry.ip,
+        ip: sanitized_ip,
         message: sanitized_message,
     }
 }

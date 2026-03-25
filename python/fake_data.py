@@ -1,9 +1,10 @@
 import random
 from faker import Faker
 from collections import Counter
+from pathlib import Path
 
 SAMPLE_COUNT = 10_000
-OUTPUT_FILE = "sample_logs.txt"
+OUTPUT_FILE = Path("..") / "data" / "sample_logs.txt"
 # Weight the levels so INFO is most common, CRITICAL is rare
 levels = (
     ["INFO"] * 50 + ["DEBUG"] * 20 + ["WARN"] * 15 + ["ERROR"] * 10 + ["CRITICAL"] * 5
@@ -29,9 +30,9 @@ with open(OUTPUT_FILE, "w") as f:
             msg = (
                 f"Successfully served {fake.uri_path()} in {random.randint(10, 500)}ms"
             )
-        
+
         # Format: [TIMESTAMP] LEVEL IP - MESSAGE
         log_line = f"[{timestamp}] {level} {ip} - {msg}\n"
         f.write(log_line)
 
-print("Created sample_logs.txt!")
+print(f"Created {OUTPUT_FILE}!")

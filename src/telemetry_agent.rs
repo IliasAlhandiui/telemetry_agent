@@ -10,7 +10,7 @@ pub enum LogLevel {
     CRITICAL,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct LogEntry {
     pub timestamp: String,
     pub level: LogLevel,
@@ -46,7 +46,7 @@ pub fn parse_log_line(line: &str) -> Option<LogEntry> {
     })
 }
 
-pub fn sanitize_log_entry(log_entry: LogEntry) -> LogEntry {
+pub fn sanitize_log_entry(log_entry: LogEntry, hide_ip: bool) -> LogEntry {
     // Simple sanitization: email addresses and potentiall credit card numbers with ***
     static EMAIL_REGEX: OnceLock<Regex> = OnceLock::new();
     static CC_REGEX: OnceLock<Regex> = OnceLock::new();
@@ -61,8 +61,12 @@ pub fn sanitize_log_entry(log_entry: LogEntry) -> LogEntry {
     let sanitized_message = cc_regex.replace_all(&sanitized_message, "***").to_string();
 
     // only show first 10 characters of IP for privacy
-    let sanitized_ip = if log_entry.ip.len() > 10 {
-        format!("{}***", &log_entry.ip[..10])
+    let sanitized_ip = if hide_ip {
+        if log_entry.ip.len() > 10 {
+            format!("{}***", &log_entry.ip[..10])
+        } else {
+            log_entry.ip.clone()
+        }
     } else {
         log_entry.ip.clone()
     };

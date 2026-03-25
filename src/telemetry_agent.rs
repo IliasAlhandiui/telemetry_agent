@@ -1,5 +1,5 @@
 use regex::Regex;
-use std::{f32::consts::E, os::linux::raw::stat, sync::OnceLock};
+use std::sync::OnceLock;
 
 #[derive(Debug, Hash, Eq, PartialEq, Clone, Copy)]
 pub enum LogLevel {
